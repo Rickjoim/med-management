@@ -50,7 +50,13 @@ public class Paciente {
     public Long getId() {
         return this.id;
     }
-
+    public String getTelefone() {
+        return this.telefone;
+    }
+    public Endereco getEndereco() {
+        return this.endereco;
+    }
+    public boolean getAtivo() {return this.ativo;}
     public void atualizarInformacoes(DadosatualizacaoPaciente dados) {
         if(dados.nome()!= null){
             this.nome = dados.nome();
@@ -66,4 +72,6 @@ public class Paciente {
     public void excluir() {
         this.ativo = false;
     }
+
+
 }

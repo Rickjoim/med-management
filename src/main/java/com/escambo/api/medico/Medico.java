@@ -63,6 +63,9 @@ public class Medico {
 
     public Long getID() {return this.id;}
 
+    public String getTelefone() {return this.telefone;}
+
+
     public void atualizarInformacoes(DadosatualizacaoMedico dados) {
         if(dados.nome()!= null){
             this.nome = dados.nome();
@@ -78,4 +81,10 @@ public class Medico {
     public void excluir() {
         this.ativo=false;
     }
+
+    public Endereco getEndereco() {
+        return this.endereco;
+    }
+
+    public boolean getAtivo() {return this.ativo;}
 }

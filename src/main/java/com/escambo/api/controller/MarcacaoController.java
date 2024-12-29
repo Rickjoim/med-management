@@ -4,6 +4,7 @@ import com.escambo.api.marcacao.*;
 import com.escambo.api.medico.DadosListagemMedicos;
 import com.escambo.api.medico.Medico;
 import com.escambo.api.medico.MedicoRepository;
+import com.escambo.api.paciente.DadosDetalhamentoPaciente;
 import com.escambo.api.paciente.Paciente;
 import com.escambo.api.paciente.PacienteRepository;
 import jakarta.transaction.Transactional;
@@ -56,18 +57,21 @@ public class MarcacaoController {
         var marcacao = marcacaoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Marcação com id " + id + " não encontrado."));
 
-        return new DadosListagemMarcacao(marcacao);
+        if(marcacao.getAtivo()){
+            return new DadosListagemMarcacao(marcacao);
+        }else{
+            throw new IllegalArgumentException("Marcação não encontrada");
+        }
+
+
     }
 
 
-    @PutMapping("/{id}")
+    @PutMapping
     @Transactional
-    public ResponseEntity<?> atualizarMarcacao(@PathVariable Long id, @RequestBody DadosAtualizacaoMarcacao dados) {
-        Marcacao marcacao = marcacaoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Marcação com id " + id + " não encontrada"));
-
+    public void atualizarMarcacao(@RequestBody DadosAtualizacaoMarcacao dados) {
+        var marcacao = marcacaoRepository.getReferenceById(dados.id());
         marcacao.atualizarInformacoes(dados);
-        return ResponseEntity.ok(marcacao);
     }
 
 

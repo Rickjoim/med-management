@@ -73,6 +73,7 @@ public class Marcacao {
         return this.endereco;
     }
 
+    public boolean getAtivo() {return this.ativo;}
     public void atualizarInformacoes(DadosAtualizacaoMarcacao dados) {
 
         if (dados.data() != null) {

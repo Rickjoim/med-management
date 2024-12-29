@@ -1,5 +1,6 @@
 package com.escambo.api.controller;
 
+import com.escambo.api.medico.DadosDetalhamentoMedico;
 import com.escambo.api.paciente.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/pacientes")
@@ -18,8 +20,11 @@ public class PacienteController {
     private PacienteRepository repository;
     @PostMapping
     @Transactional
-    public void cadastrar(@RequestBody DadosCadastroPaciente dados){
-        repository.save(new Paciente(dados));
+    public ResponseEntity cadastrar(@RequestBody DadosCadastroPaciente dados, UriComponentsBuilder uribuilder){
+        var paciente = new Paciente(dados);
+        repository.save(paciente);
+        var url = uribuilder.path("/paciente/{id}").buildAndExpand(paciente.getId()).toUri();
+        return ResponseEntity.created(url).body(new DadosDetalhamentoPaciente(paciente));
     }
 
 
@@ -31,7 +36,7 @@ public class PacienteController {
     @GetMapping("/{nome}")
     public DadosListagemPacientes busca(@PathVariable String nome) {
         var paciente = repository.findByNome(nome);
-        if (paciente == null) {
+        if (paciente == null || paciente.getAtivo() != true) {
             throw new IllegalArgumentException("Paciente com nome " + nome + " não encontrado.");
         }
         return new DadosListagemPacientes(paciente);
@@ -39,9 +44,10 @@ public class PacienteController {
 
     @Transactional
     @PutMapping
-    public void atualizar(@RequestBody DadosatualizacaoPaciente dados){
+    public ResponseEntity atualizar(@RequestBody DadosatualizacaoPaciente dados){
         var paciente = repository.getReferenceById(dados.id());
         paciente.atualizarInformacoes(dados);
+        return ResponseEntity.ok(new DadosDetalhamentoPaciente(paciente));
     }
 
     @Transactional
@@ -50,7 +56,7 @@ public class PacienteController {
         var paciente = repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Paciente com id " + id + " não encontrado."));
         repository.getReferenceById(id);
         paciente.excluir();
-        return ResponseEntity.noContent().build(); // Retorna 204 No Content
+        return ResponseEntity.noContent().build();
     }
 
 }
